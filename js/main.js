@@ -338,6 +338,16 @@ class App {
           break;
       }
     });
+
+    document.addEventListener('click', (e) => {
+      // Don't advance if they are interacting with the UI
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
+      
+      this._ensureAudio();
+      if (!this._interrupted) {
+        this.advanceBeat();
+      }
+    });
   }
 
   _delay(ms) {
