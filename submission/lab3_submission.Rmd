@@ -1,0 +1,90 @@
+---
+title: "Lab 3: Time Series Explorer - Data Analysis"
+author: "Roshan Adhikari"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+set.seed(12345)
+```
+
+## 1. White Noise and Random Walk
+
+A white noise process consists of uncorrelated random variables with zero mean and constant variance. A random walk is formed by taking the cumulative sum of white noise.
+
+```{r white-noise-random-walk}
+# Simulate White Noise
+n <- 400
+white_noise <- rnorm(n, mean = 0, sd = 1)
+
+# Simulate Random Walk
+random_walk <- cumsum(white_noise)
+
+# Plotting
+par(mfrow = c(2, 1))
+plot(white_noise, type = "l", col = "steelblue", main = "White Noise", ylab = "Y(t)", xlab = "Time")
+plot(random_walk, type = "l", col = "firebrick", main = "Random Walk", ylab = "Y(t)", xlab = "Time")
+```
+
+## 2. Moving Average: MA(1) Process
+
+An MA(1) process models the current value as a linear combination of the current and previous white noise error terms. The ACF of an MA(1) model drops off sharply after lag 1.
+
+```{r ma1-process}
+# Simulate MA(1) with theta = 0.8
+ma1_sim <- arima.sim(model = list(ma = 0.8), n = n)
+
+par(mfrow = c(1, 2))
+plot(ma1_sim, type = "l", col = "darkorange", main = "MA(1) Series (theta = 0.8)", ylab = "Y(t)", xlab = "Time")
+acf(ma1_sim, main = "Sample ACF of MA(1)")
+```
+
+## 3. Autoregressive: AR(1) Process
+
+An AR(1) process models the current value based on the immediate past value. For an AR(1) model, the ACF decays exponentially, while the PACF cuts off after lag 1.
+
+```{r ar1-process}
+# Simulate AR(1) with phi = 0.8
+ar1_sim <- arima.sim(model = list(ar = 0.8), n = n)
+
+par(mfrow = c(1, 3))
+plot(ar1_sim, type = "l", col = "seagreen", main = "AR(1) Series (phi = 0.8)", ylab = "Y(t)", xlab = "Time")
+acf(ar1_sim, main = "ACF of AR(1)")
+pacf(ar1_sim, main = "PACF of AR(1)")
+```
+
+## 4. Trend and Differencing
+
+A deterministic linear trend renders a series non-stationary. By taking the first difference of the series, we can remove the linear trend and stabilize the mean.
+
+```{r trend-differencing}
+# Create a series with a linear trend
+time_index <- 1:n
+trend_series <- 0.05 * time_index + white_noise
+
+# Apply First Differencing
+differenced_series <- diff(trend_series)
+
+par(mfrow = c(2, 2))
+plot(trend_series, type = "l", col = "purple", main = "Series with Linear Trend", ylab = "Y(t)", xlab = "Time")
+acf(trend_series, main = "ACF (Trend)", lag.max = 30)
+
+plot(differenced_series, type = "l", col = "darkcyan", main = "First Differenced Series", ylab = "Diff(Y(t))", xlab = "Time")
+acf(differenced_series, main = "ACF (Differenced)", lag.max = 30)
+```
+
+## 5. Seasonality
+
+Seasonal patterns introduce cyclical fluctuations at regular intervals. The ACF of a seasonal series will show significant spikes at multiples of the seasonal period (e.g., lag 12 for monthly data).
+
+```{r seasonality}
+# Simulate Seasonality (Period = 12)
+seasonal_component <- 5 * sin(2 * pi * time_index / 12)
+seasonal_series <- seasonal_component + white_noise
+
+par(mfrow = c(1, 2))
+plot(seasonal_series[1:100], type = "l", col = "darkred", main = "Seasonal Series (Subset)", ylab = "Y(t)", xlab = "Time")
+acf(seasonal_series, main = "ACF of Seasonal Series", lag.max = 40)
+```
