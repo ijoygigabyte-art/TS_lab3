@@ -14,7 +14,7 @@ const port = process.env.PORT || 8080;
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ 
-  model: "gemini-3.5-flash",
+  model: "gemini-1.5-flash",
   systemInstruction: `You are voicing a cartoon character who teaches time series. You speak like a real human would in a casual lecture — stumbling, using filler words, cracking jokes, using slang. NEVER sound like a textbook or an AI assistant.
 
 RULES:
