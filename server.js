@@ -199,17 +199,30 @@ ${referenceKnowledge}
     const text = result.response.text();
     console.log(`💬 Avatar answered: "${text}"`);
 
-    // 4. Generate Voice with Gemini TTS
-    console.log(`🎤 Generating audio with Gemini TTS...`);
-    const ttsResult = await ttsModel.generateContent(text);
-    const audioPart = ttsResult.response.candidates[0].content.parts.find(p => p.inlineData);
+    // 4. Generate Voice with ElevenLabs TTS
+    console.log(`🎤 Generating audio with ElevenLabs...`);
+    const ttsResponse = await fetch('https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL', {
+      method: 'POST',
+      headers: {
+        'Accept': 'audio/mpeg',
+        'Content-Type': 'application/json',
+        'xi-api-key': process.env.ELEVENLABS_API_KEY
+      },
+      body: JSON.stringify({
+        text: text,
+        model_id: "eleven_monolingual_v1",
+        voice_settings: { stability: 0.5, similarity_boost: 0.5 }
+      })
+    });
     
-    if (!audioPart || !audioPart.inlineData) {
-      throw new Error("Gemini TTS did not return audio data.");
+    if (!ttsResponse.ok) {
+      const errTxt = await ttsResponse.text();
+      throw new Error("ElevenLabs API error: " + errTxt);
     }
     
-    const audioBase64 = audioPart.inlineData.data;
-    const audioDataUrl = `data:audio/wav;base64,${audioBase64}`;
+    const audioBuffer = await ttsResponse.arrayBuffer();
+    const audioBase64 = Buffer.from(audioBuffer).toString('base64');
+    const audioDataUrl = `data:audio/mpeg;base64,${audioBase64}`;
 
     res.json({ text, audioUrl: audioDataUrl });
 
