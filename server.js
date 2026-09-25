@@ -10,8 +10,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
-const port = 3000;
-
+const port = process.env.PORT || 8080;
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({ 
@@ -231,6 +230,6 @@ ${referenceKnowledge}
   }
 });
 
-app.listen(port, () => {
-  console.log(`🚀 RAG AI Server running on http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`🚀 RAG AI Server running on port ${port}`);
 });
