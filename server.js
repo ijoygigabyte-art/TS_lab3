@@ -137,7 +137,7 @@ Using the Reference Knowledge to ensure accuracy, generate your spoken dialogue.
 });
 
 // Initialize Gemini TTS Model
-const ttsModel = genAI.getGenerativeModel({ model: "gemini-3.8-flash-tts" });
+const ttsModel = genAI.getGenerativeModel({ model: "gemini-3.8-flash-lite-tts" });
 
 // ----------------------------------------------------
 // TTS API: Generate audio for default scripted beats
